@@ -66,13 +66,10 @@ namespace WinContextTweaker
 
 			if (script != null)
 			{
-				string[] enabledOptions = script.GetValueNames();
-
-				Extended.IsChecked = enabledOptions.Contains("Extended");
-			}
-			else
-			{
-				Extended.IsChecked = false;
+				foreach (CheckBox checkbox in stkOptions.Children)
+				{
+					checkbox.IsChecked = script.GetValue(checkbox.DataContext as string) != null;
+				}
 			}
 		}
 		private void UpdateScripts()
@@ -87,7 +84,10 @@ namespace WinContextTweaker
 
 				foreach (string name in subKeyNames)
 				{
-					lstScripts.Items.Add(name);
+					if (GetRootScriptCommand(path + name) != null)
+					{
+						lstScripts.Items.Add(name);
+					}
 				}
 			}
 		}
@@ -95,7 +95,7 @@ namespace WinContextTweaker
 		{
 			txtCommand.IsEnabled = allow;
 			stkOptions.IsEnabled = allow;
-			btnEditScript.IsEnabled = allow;
+			btnRenameScript.IsEnabled = allow;
 			btnDeleteScript.IsEnabled = allow;
 		}
 
@@ -118,7 +118,11 @@ namespace WinContextTweaker
 
 		static private string? GetRootScriptCommand(string path)
 		{
-			return OpenRootSubKey(path + "\\command")?.GetValue("") as string;
+			RegistryKey? key = OpenRootSubKey(path + "\\command");
+
+			if (key == null) return null;
+
+			return key.GetValue("") as string ?? "";
 		}
 		static private void SetRootScriptCommand(string path, string command)
 		{
@@ -148,6 +152,22 @@ namespace WinContextTweaker
 				}
 			}
 		}
+		static private void SwitchScriptOption(string path, string option, bool enable)
+		{
+			RegistryKey? script = OpenRootSubKey(path, true);
+
+			if (script != null)
+			{
+				if (enable)
+				{
+					script.SetValue(option, "");
+				}
+				else if (script.GetValue(option) != null)
+				{
+					script.DeleteValue(option);
+				}
+			}
+		}
 
 
 
@@ -156,6 +176,17 @@ namespace WinContextTweaker
 			CanEdit(false);
 
 			path = ((ComboBoxItem)e.AddedItems[0]).DataContext.ToString();
+
+			if (path == "SystemFileAssociations\\")
+			{
+				path = null;
+				btnSelectExtension.Content = "Select Extension";
+				btnSelectExtension.Visibility = Visibility.Visible;
+			}
+			else
+			{
+				btnSelectExtension.Visibility = Visibility.Collapsed;
+			}
 
 			UpdateScripts();
         }
@@ -167,10 +198,14 @@ namespace WinContextTweaker
 			if (selectedScript == null)
 			{
 				CanEdit(false);
-				txtCommand.Text = "";
+				txtCommand.Visibility = Visibility.Collapsed;
+				stkOptions.Visibility = Visibility.Collapsed;
 			}
             else
             {
+				txtCommand.Visibility = Visibility.Visible;
+				stkOptions.Visibility = Visibility.Visible;
+
 				try
 				{
 					UpdateOptions();
@@ -191,19 +226,37 @@ namespace WinContextTweaker
 		{
 			CheckBox element = (CheckBox)sender;
 			bool state = element.IsChecked ?? false;
-			string option = element.Name;
+			string? option = element.DataContext as string;
 
-			RegistryKey? script = OpenRootSubKey(path + selectedScript, true);
-
-			if (script != null)
+			if (option != null)
 			{
-				if (state)
+				SwitchScriptOption(path + selectedScript, option, state);
+
+				if (state == true)
 				{
-					script.SetValue(option, "");
-				}
-				else if (script.GetValue(option) != null)
-				{
-					script.DeleteValue(option);
+					switch (option) //special option scripts
+					{
+						case "Icon":
+							OpenFileDialog openFileDialog = new OpenFileDialog();
+
+							openFileDialog.InitialDirectory = "%userprofile%";
+							openFileDialog.Filter = "Icon Files (*.ico, *.exe)|*.ico;*.exe";
+							openFileDialog.FilterIndex = 0;
+							openFileDialog.RestoreDirectory = true;
+
+							if (openFileDialog.ShowDialog() == true)
+							{
+								string iconPath = openFileDialog.FileName;
+
+								OpenRootSubKey(path + selectedScript, true)?.SetValue(option, iconPath);
+							}
+							else
+							{
+								element.IsChecked = false;
+							}
+
+							break;
+					}
 				}
 			}
 		}
@@ -239,7 +292,7 @@ namespace WinContextTweaker
 			}
 		}
 
-		private void Button_EditScript(object sender, EventArgs e)
+		private void Button_RenameScript(object sender, EventArgs e)
 		{
 			InputDialog inputDialog = new InputDialog("Enter the script's new name:", selectedScript);
 
@@ -248,6 +301,19 @@ namespace WinContextTweaker
 				RenameRootScript(path, selectedScript, inputDialog.Answer);
 				UpdateScripts();
 			}
+		}
+
+		private void Button_SelectExtension(object sender, EventArgs e)
+		{
+			InputDialog inputDialog = new InputDialog("Enter the file extension (WITH A POINT)", ".");
+
+			if (inputDialog.ShowDialog() == true)
+			{
+				path = $"SystemFileAssociations\\{inputDialog.Answer}\\shell\\";
+				btnSelectExtension.Content = inputDialog.Answer;
+			}
+
+			UpdateScripts();
 		}
 	}
 }

@@ -23,3 +23,8 @@ You can download it in the releases tab.
 ## Changelog
 - **v1.0.0**:
 <br>- First release.
+
+- **v1.1.0**:
+<br>- Added "Icon" (with icon selection) and "No Working Directory" options.
+<br>- Added "Text", "Document", "Image", "Video", "Audio" and "by extension" files context menus.
+<br>- Fixed crashes and bugs.

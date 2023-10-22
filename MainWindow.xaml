@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WinContextTweaker" mc:Ignorable="d"
         Title="WinContextTweaker"  WindowStartupLocation="CenterScreen"
         Height="500" Width="750" MinHeight="300" MinWidth="600"
-        FontFamily="Arial" FontSize="15">
+        FontFamily="Arial" FontSize="15" Background="#E6E6E6">
 	<Grid Margin="15,0,15,15">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="200"/>
@@ -21,23 +21,41 @@
 
 
         <TextBox x:Name="txtCommand" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
-                 Height="22"
+                 Height="22" Visibility="Collapsed"
                  TextChanged="Text_CommandChanged"/>
 
 
-		<ComboBox x:Name="cmbContext" Grid.Column="0" Grid.Row="1"
-                  Height="25" Width="110"
-                  SelectionChanged="Context_SelectionChanged">
-			<ComboBoxItem Content="Background" DataContext="Directory\Background\shell\"/>
-			<ComboBoxItem Content="Folder" DataContext="Directory\shell\"/>
-			<ComboBoxItem Content="File" DataContext="*\shell\"/>
-		</ComboBox>
+		<StackPanel x:Name="stkContext" Grid.Column="0" Grid.Row="1"
+					HorizontalAlignment="Center" VerticalAlignment="Center">
+			<ComboBox x:Name="cmbContext" 
+					  Height="25" Width="140" Margin="5"
+					  SelectionChanged="Context_SelectionChanged">
+				<ComboBoxItem Content="Background" DataContext="Directory\Background\shell\"/>
+				<ComboBoxItem Content="Folders" DataContext="Directory\shell\"/>
+				<ComboBoxItem Content="Any File" DataContext="*\shell\"/>
+				<ComboBoxItem Content="Text Files" DataContext="SystemFileAssociations\text\shell\"/>
+				<ComboBoxItem Content="Document Files" DataContext="SystemFileAssociations\document\shell\"/>
+				<ComboBoxItem Content="Image Files" DataContext="SystemFileAssociations\image\shell\"/>
+				<ComboBoxItem Content="Video Files" DataContext="SystemFileAssociations\video\shell\"/>
+				<ComboBoxItem Content="Audio Files" DataContext="SystemFileAssociations\audio\shell\"/>
+				<ComboBoxItem Content="By Extension" DataContext="SystemFileAssociations\"/>
+			</ComboBox>
+			<Button x:Name="btnSelectExtension" Content="Select Extension" Visibility="Collapsed"
+					Width="125" Margin="5"
+					Click="Button_SelectExtension"/>
+		</StackPanel>
+
 
 
 		<StackPanel x:Name="stkOptions" Grid.Column="0" Grid.Row="2"
-					HorizontalAlignment="Center" VerticalAlignment="Top">
-			<CheckBox x:Name="Extended" Content="Shift+Right Click Only"
-					  Checked="Checkbox_SwitchScriptOption" Unchecked="Checkbox_SwitchScriptOption"/>
+					HorizontalAlignment="Center" VerticalAlignment="Center"
+					Visibility="Collapsed">
+			<CheckBox x:Name="optExtended" Content="Shift Only" DataContext="Extended" Margin="5"
+					  Click="Checkbox_SwitchScriptOption"/>
+			<CheckBox x:Name="optIcon" Content="Icon" DataContext="Icon" Margin="5"
+					  Click="Checkbox_SwitchScriptOption"/>
+			<CheckBox x:Name="optNoWorkingDirectory" Content="No Working Directory" DataContext="NoWorkingDirectory" Margin="5" 
+					  Click="Checkbox_SwitchScriptOption"/>
 		</StackPanel>
 
 
@@ -48,14 +66,13 @@
 
 		<StackPanel x:Name="stkScriptButtons" Grid.Column="2" Grid.Row="3"
 					HorizontalAlignment="Center" VerticalAlignment="Top"
-					Orientation="Horizontal"
-					Margin="0,5,0,0">
+					Orientation="Horizontal" Margin="0,5,0,0">
 			<Button x:Name="btnNewScript" Content="New"
 					Width="100" Margin="0,0,5,0"
 					Click="Button_NewScript"/>
-			<Button x:Name="btnEditScript" Content="Edit"
+			<Button x:Name="btnRenameScript" Content="Rename"
 					Width="100" Margin="0,0,5,0"
-					Click="Button_EditScript"/>
+					Click="Button_RenameScript"/>
 			<Button x:Name="btnDeleteScript" Content="Delete"
 					Width="100" Margin="0,0,5,0"
 					Click="Button_DeleteScript"/>
