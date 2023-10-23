@@ -2,7 +2,7 @@
 Free and Open-source Right Click Context Menu Editor for Windows.
 You can download it in the releases tab.
 
-You might have to install vc_redist and .NET 6.0
+Remember to install vc_redist_x64 and .NET 6.0 (which chances are you probably already have installed)
 
 ## Features
 - Background, folders and file types context menu editing.
