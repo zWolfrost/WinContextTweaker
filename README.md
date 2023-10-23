@@ -2,10 +2,12 @@
 Free and Open-source Right Click Context Menu Editor for Windows.
 You can download it in the releases tab.
 
+You might have to install vc_redist and .NET 6.0
+
 ## Features
-- Background, folder and file context menu editing.
-- Creation, editing and deletion of context menu items, along with their scripts.
-- Support for registry options. (As of v1.0.0, only Extended Right Click Menu)
+- Background, folders and file types context menu editing.
+- Creation, renaming and deletion of context menu items, along with their scripts.
+- Support for registry options (Shift only, Icon...).
 
 &nbsp;
 
