@@ -36,6 +36,7 @@ namespace WinContextTweaker
 				InitializeComponent();
 
 				CanEdit(false);
+				CanSee(false);
 				cmbContext.SelectedIndex = 0;
 			}
 			else
@@ -90,6 +91,13 @@ namespace WinContextTweaker
 					}
 				}
 			}
+		}
+		private void CanSee(bool allow)
+		{
+			Visibility visibility = allow ? Visibility.Visible : Visibility.Collapsed;
+
+			stkCommand.Visibility = visibility;
+			stkOptions.Visibility = visibility;
 		}
 		private void CanEdit(bool allow)
 		{
@@ -198,13 +206,11 @@ namespace WinContextTweaker
 			if (selectedScript == null)
 			{
 				CanEdit(false);
-				txtCommand.Visibility = Visibility.Collapsed;
-				stkOptions.Visibility = Visibility.Collapsed;
+				CanSee(false);
 			}
             else
             {
-				txtCommand.Visibility = Visibility.Visible;
-				stkOptions.Visibility = Visibility.Visible;
+				CanSee(true);
 
 				try
 				{
@@ -272,11 +278,14 @@ namespace WinContextTweaker
 
 		private void Button_NewScript(object sender, EventArgs e)
 		{
+			const string defaultCommand = "cmd /c \"echo Hello World && pause\"";
+
 			InputDialog inputDialog = new InputDialog("Enter the new script's name:", "");
 
-			if (inputDialog.ShowDialog() == true)
+			if (inputDialog.ShowDialog() == true && path != null)
 			{
 				CreateRootSubKey(path, inputDialog.Answer + "\\command");
+				SetRootScriptCommand(path + inputDialog.Answer, defaultCommand);
 				UpdateScripts();
 			}
 		}
