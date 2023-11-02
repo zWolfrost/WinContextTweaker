@@ -19,7 +19,7 @@ If you are using Windows 7 or 8.1, remember to install the ".NET Framework 6.0" 
 - If you are making changes using the actual Registry, you can update the scripts by pressing "F5" while using the program.
 
 &nbsp;
-## Screenshots (as of v1.1.0)
+## Screenshots (as of v1.3.0)
 <img src="assets/screenshot1.png" alt="Script Creation" height="400"/>
 
 &nbsp;
