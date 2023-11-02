@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:WinContextTweaker" mc:Ignorable="d"
         Title="WinContextTweaker"  WindowStartupLocation="CenterScreen"
         Height="500" Width="750" MinHeight="350" MinWidth="550"
-        FontFamily="Arial" FontSize="15" Background="#E6E6E6">
+        FontFamily="Arial" FontSize="15" Background="#E6E6E6"
+		KeyDown="MainWindow_OnKeyDown">
+
 	<Grid Margin="15,0,15,15">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="175"/>
@@ -22,7 +24,7 @@
 
 		<StackPanel x:Name="stkCommand" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
 					Margin="5" VerticalAlignment="Center">
-			<Label HorizontalAlignment="Left">
+			<Label HorizontalAlignment="Left" FontWeight="Bold">
 					Command to run:
 			</Label>
 			<TextBox x:Name="txtCommand" Height="22"
@@ -35,19 +37,18 @@
 			<ComboBox x:Name="cmbContext"
 					  Height="25" Width="165"
 					  SelectionChanged="Context_SelectionChanged">
-				<ComboBoxItem Content="Background" DataContext="Directory\Background\shell\"/>
-				<ComboBoxItem Content="Folders" DataContext="Directory\shell\"/>
-				<ComboBoxItem Content="Any File" DataContext="*\shell\"/>
-				<ComboBoxItem Content="Text Files" DataContext="SystemFileAssociations\text\shell\"/>
-				<ComboBoxItem Content="Document Files" DataContext="SystemFileAssociations\document\shell\"/>
-				<ComboBoxItem Content="Image Files" DataContext="SystemFileAssociations\image\shell\"/>
-				<ComboBoxItem Content="Video Files" DataContext="SystemFileAssociations\video\shell\"/>
-				<ComboBoxItem Content="Audio Files" DataContext="SystemFileAssociations\audio\shell\"/>
+				<ComboBoxItem Content="Background" DataContext="Directory\Background\"/>
+				<ComboBoxItem Content="Folders" DataContext="Directory\"/>
+				<ComboBoxItem Content="Any File" DataContext="*\"/>
+				<ComboBoxItem Content="Text Files" DataContext="SystemFileAssociations\text\"/>
+				<ComboBoxItem Content="Document Files" DataContext="SystemFileAssociations\document\"/>
+				<ComboBoxItem Content="Image Files" DataContext="SystemFileAssociations\image\"/>
+				<ComboBoxItem Content="Video Files" DataContext="SystemFileAssociations\video\"/>
+				<ComboBoxItem Content="Audio Files" DataContext="SystemFileAssociations\audio\"/>
 				<ComboBoxItem Content="By Extension" DataContext="SystemFileAssociations\"/>
 			</ComboBox>
-			<Button x:Name="btnSelectExtension" Content="Select Extension" Visibility="Collapsed"
-					Width="125" Margin="5"
-					Click="Button_SelectExtension"/>
+			<Label x:Name="lblSelectedExtension" Content="Extension" FontWeight="Bold"
+				   HorizontalAlignment="Center" Margin="5" Visibility="Collapsed"/>
 		</StackPanel>
 
 
@@ -71,6 +72,12 @@
 				 Margin="5"
                  SelectionChanged="List_ScriptChanged">
 		</ListBox>
+		<Label x:Name="lblNoScriptFound" Grid.Column="2" Grid.Row="1" Grid.RowSpan="2"
+			   HorizontalAlignment="Center" VerticalAlignment="Center"
+			   Foreground="Gray" Visibility="Hidden">
+			No script was found...
+		</Label>
+
 
 		<StackPanel x:Name="stkScriptButtons" Grid.Column="2" Grid.Row="3"
 					HorizontalAlignment="Center" VerticalAlignment="Top"

@@ -16,9 +16,10 @@ If you are using Windows 7 or 8.1, remember to install the ".NET Framework 6.0" 
   - "%V" – The selected item (file or folder).
   - "%W" – The working directory. Usually, this is the directory of the right-click, but not necessarily the selected item's parent folder (for example, when right-clicking shortcuts, "%V" returns the path of the actual item, while "%W" returns the shortcut's folder).
 
+- If you are making changes using the actual Registry, you can update the app and its scripts by pressing F5.
 
 &nbsp;
-
+## Screenshots
 <img src="assets/1.png" alt="Script Creation" width="600"/>
 
 &nbsp;
@@ -43,3 +44,10 @@ If you are using Windows 7 or 8.1, remember to install the ".NET Framework 6.0" 
 <br>- Added an "Hello World" default command.
 <br>- Added Tooltips on hover.
 <br>- Made the elements padding more organized.
+
+- **v1.3.0**:
+<br>- Added "No scripts was found" text.
+<br>- Added an F5 "Update" keybinding, for debugging purposes.
+<br>- Changed the way you select an extension.
+<br>- Fixed bug where creating or renaming a script with an invalid name would crash the program.
+<br>- Fixed bug where creating a script for a file extension that had no registry entry would not work.

@@ -21,6 +21,7 @@ using System.Windows.Media.Media3D;
 using System.Linq.Expressions;
 using System.Xml.Linq;
 
+using System.Text.RegularExpressions;
 
 namespace WinContextTweaker
 {
@@ -63,7 +64,7 @@ namespace WinContextTweaker
 
 		private void UpdateOptions()
 		{
-			RegistryKey? script = OpenRootSubKey(path + selectedScript);
+			RegistryKey? script = OpenRootSubKey(path + "shell\\" + selectedScript);
 
 			if (script != null)
 			{
@@ -79,17 +80,19 @@ namespace WinContextTweaker
 
 			if (path != null)
 			{
-				string[] subKeyNames = OpenRootSubKey(path)?.GetSubKeyNames() ?? [];
+				string[] subKeyNames = OpenRootSubKey(path + "shell\\")?.GetSubKeyNames() ?? [];
 
-				/*Debug.WriteLine(string.Join(" ", subKeyNames));*/
+				//Debug.WriteLine(string.Join(" ", subKeyNames));
 
 				foreach (string name in subKeyNames)
 				{
-					if (GetRootScriptCommand(path + name) != null)
+					if (GetRootScriptCommand(path + "shell\\" + name) != null)
 					{
 						lstScripts.Items.Add(name);
 					}
 				}
+
+				lblNoScriptFound.Visibility = lstScripts.HasItems ? Visibility.Collapsed : Visibility.Visible;
 			}
 		}
 		private void CanSee(bool allow)
@@ -123,7 +126,6 @@ namespace WinContextTweaker
 		}
 
 
-
 		static private string? GetRootScriptCommand(string path)
 		{
 			RegistryKey? key = OpenRootSubKey(path + "\\command");
@@ -140,7 +142,7 @@ namespace WinContextTweaker
 		{
 			RegistryKey? oldScript = OpenRootSubKey(path + oldKey);
 
-			if (oldScript != null && newKey != "")
+			if (oldScript != null)
 			{
 				RegistryKey? newScript = CreateRootSubKey(path, newKey);
 				CreateRootSubKey(path, newKey + "\\command");
@@ -178,6 +180,28 @@ namespace WinContextTweaker
 		}
 
 
+		static private bool IsValidRegexKeyName(string str)
+		{
+			const string invalidChars = """\""";
+
+			Regex InvalidCharsRegex = new Regex($"[{Regex.Escape(invalidChars)}]");
+
+			if (InvalidCharsRegex.IsMatch(str) || str.Length == 0) return false;
+			return true;
+		}
+
+
+
+		private void MainWindow_OnKeyDown(object sender, KeyEventArgs e)
+		{
+			switch (e.Key)
+			{
+				case Key.F5:
+					UpdateScripts();
+					UpdateOptions();
+					break;
+			}
+		}
 
 		private void Context_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
@@ -187,16 +211,33 @@ namespace WinContextTweaker
 
 			if (path == "SystemFileAssociations\\")
 			{
-				path = null;
-				btnSelectExtension.Content = "Select Extension";
-				btnSelectExtension.Visibility = Visibility.Visible;
+				lstScripts.Items.Clear();
+
+				InputDialog inputDialog = new InputDialog("Enter the file extension (WITH A POINT)", ".");
+
+				if (inputDialog.ShowDialog() == true)
+				{
+					path += inputDialog.Answer + "\\";
+					lblSelectedExtension.Content = inputDialog.Answer;
+
+					CreateRootSubKey("SystemFileAssociations", inputDialog.Answer);
+
+					UpdateScripts();
+
+					lblSelectedExtension.Content = inputDialog.Answer;
+					lblSelectedExtension.Visibility = Visibility.Visible;
+				}
+				else
+				{
+					cmbContext.SelectedIndex = 0;
+				}
 			}
 			else
 			{
-				btnSelectExtension.Visibility = Visibility.Collapsed;
-			}
+				lblSelectedExtension.Visibility = Visibility.Collapsed;
 
-			UpdateScripts();
+				UpdateScripts();
+			}
         }
 
         private void List_ScriptChanged(object sender, EventArgs e)
@@ -216,7 +257,7 @@ namespace WinContextTweaker
 				{
 					UpdateOptions();
 
-					string? command = GetRootScriptCommand(path + selectedScript);
+					string? command = GetRootScriptCommand(path + "shell\\" + selectedScript);
 					txtCommand.Text = command;
 
 					CanEdit(true);
@@ -236,13 +277,15 @@ namespace WinContextTweaker
 
 			if (option != null)
 			{
-				SwitchScriptOption(path + selectedScript, option, state);
+				SwitchScriptOption(path + "shell\\" + selectedScript, option, state);
 
 				if (state == true)
 				{
 					switch (option) //special option scripts
 					{
 						case "Icon":
+							element.IsChecked = false;
+
 							OpenFileDialog openFileDialog = new OpenFileDialog();
 
 							openFileDialog.InitialDirectory = "%userprofile%";
@@ -254,11 +297,9 @@ namespace WinContextTweaker
 							{
 								string iconPath = openFileDialog.FileName;
 
-								OpenRootSubKey(path + selectedScript, true)?.SetValue(option, iconPath);
-							}
-							else
-							{
-								element.IsChecked = false;
+								OpenRootSubKey(path + "shell\\" + selectedScript, true)?.SetValue(option, iconPath);
+
+								element.IsChecked = true;
 							}
 
 							break;
@@ -271,7 +312,7 @@ namespace WinContextTweaker
 		{
             string command = txtCommand.Text;
 			
-			SetRootScriptCommand(path + selectedScript, command);
+			SetRootScriptCommand(path + "shell\\" + selectedScript, command);
 		}
 
 
@@ -284,9 +325,12 @@ namespace WinContextTweaker
 
 			if (inputDialog.ShowDialog() == true && path != null)
 			{
-				CreateRootSubKey(path, inputDialog.Answer + "\\command");
-				SetRootScriptCommand(path + inputDialog.Answer, defaultCommand);
-				UpdateScripts();
+				if (IsValidRegexKeyName(inputDialog.Answer))
+				{
+					CreateRootSubKey(path, $"shell\\{inputDialog.Answer}\\command");
+					SetRootScriptCommand(path + "shell\\" + inputDialog.Answer, defaultCommand);
+					UpdateScripts();
+				}
 			}
 		}
 
@@ -294,9 +338,9 @@ namespace WinContextTweaker
 		{
 			Prompt prompt = new Prompt("Are you sure you want to delete this script?");
 
-			if (prompt.ShowDialog() == true)
+			if (prompt.ShowDialog() == true && path != null && selectedScript != null)
 			{
-				DeleteRootSubKeyTree(path, selectedScript);
+				DeleteRootSubKeyTree(path + "shell\\", selectedScript);
 				UpdateScripts();
 			}
 		}
@@ -305,24 +349,14 @@ namespace WinContextTweaker
 		{
 			InputDialog inputDialog = new InputDialog("Enter the script's new name:", selectedScript);
 
-			if (inputDialog.ShowDialog() == true)
+			if (inputDialog.ShowDialog() == true && path != null && selectedScript != null)
 			{
-				RenameRootScript(path, selectedScript, inputDialog.Answer);
-				UpdateScripts();
+				if (IsValidRegexKeyName(inputDialog.Answer))
+				{
+					RenameRootScript(path + "shell\\", selectedScript, inputDialog.Answer);
+					UpdateScripts();
+				}
 			}
-		}
-
-		private void Button_SelectExtension(object sender, EventArgs e)
-		{
-			InputDialog inputDialog = new InputDialog("Enter the file extension (WITH A POINT)", ".");
-
-			if (inputDialog.ShowDialog() == true)
-			{
-				path = $"SystemFileAssociations\\{inputDialog.Answer}\\shell\\";
-				btnSelectExtension.Content = inputDialog.Answer;
-			}
-
-			UpdateScripts();
 		}
 	}
 }

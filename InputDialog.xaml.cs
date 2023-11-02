@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace WinContextTweaker
 {
@@ -19,8 +20,9 @@ namespace WinContextTweaker
 
 		private void Window_ContentRendered(object sender, EventArgs e)
 		{
-			txtAnswer.SelectAll();
 			txtAnswer.Focus();
+			txtAnswer.SelectionStart = txtAnswer.Text.Length;
+			txtAnswer.SelectionLength = 0;
 		}
 
 		public string Answer
