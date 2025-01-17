@@ -25,13 +25,13 @@ using System.Text.RegularExpressions;
 
 namespace WinContextTweaker
 {
-    public partial class MainWindow : Window
-    {
-        public string? path;
-        public string? selectedScript;
+	public partial class MainWindow : Window
+	{
+		public string? path;
+		public string? selectedScript;
 
-        public MainWindow()
-        {
+		public MainWindow()
+		{
 			if (IsElevated())
 			{
 				InitializeComponent();
@@ -45,7 +45,7 @@ namespace WinContextTweaker
 				MessageBox.Show("You need to run this program with Elevated Permissions to edit the Registry!");
 				this.Close();
 			}
-        }
+		}
 
 
 		static private bool IsElevated()
@@ -162,7 +162,7 @@ namespace WinContextTweaker
 				}
 			}
 		}
-		static private void SwitchScriptOption(string path, string option, bool enable)
+		static private void SwitchScriptOption(string path, string option, bool enable, string value = "")
 		{
 			RegistryKey? script = OpenRootSubKey(path, true);
 
@@ -170,7 +170,7 @@ namespace WinContextTweaker
 			{
 				if (enable)
 				{
-					script.SetValue(option, "");
+					script.SetValue(option, value);
 				}
 				else if (script.GetValue(option) != null)
 				{
@@ -207,7 +207,11 @@ namespace WinContextTweaker
 		{
 			CanEdit(false);
 
-			path = ((ComboBoxItem)e.AddedItems[0]).DataContext.ToString();
+			ComboBoxItem? selectedItem = e.AddedItems[0] as ComboBoxItem;
+
+			if (selectedItem == null) return;
+
+            path = selectedItem.DataContext as string;
 
 			if (path == "SystemFileAssociations\\")
 			{
@@ -238,9 +242,9 @@ namespace WinContextTweaker
 
 				UpdateScripts();
 			}
-        }
+		}
 
-        private void List_ScriptChanged(object sender, EventArgs e)
+		private void List_ScriptChanged(object sender, EventArgs e)
 		{
 			selectedScript = lstScripts.SelectedItem as string;
 
@@ -249,8 +253,8 @@ namespace WinContextTweaker
 				CanEdit(false);
 				CanSee(false);
 			}
-            else
-            {
+			else
+			{
 				CanSee(true);
 
 				try
@@ -275,42 +279,38 @@ namespace WinContextTweaker
 			bool state = element.IsChecked ?? false;
 			string? option = element.DataContext as string;
 
-			if (option != null)
+			if (option == null) return;
+
+			string value = "";
+            if (option == "MultiSelectModel") value = "player";
+
+            SwitchScriptOption(path + "shell\\" + selectedScript, option, state, value);
+
+            if (option == "Icon" && state == true)
 			{
-				SwitchScriptOption(path + "shell\\" + selectedScript, option, state);
+                element.IsChecked = false;
 
-				if (state == true)
-				{
-					switch (option) //special option scripts
-					{
-						case "Icon":
-							element.IsChecked = false;
+                OpenFileDialog openFileDialog = new OpenFileDialog();
 
-							OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.InitialDirectory = "%userprofile%";
+                openFileDialog.Filter = "Icon Files (*.ico, *.exe)|*.ico;*.exe";
+                openFileDialog.FilterIndex = 0;
+                openFileDialog.RestoreDirectory = true;
 
-							openFileDialog.InitialDirectory = "%userprofile%";
-							openFileDialog.Filter = "Icon Files (*.ico, *.exe)|*.ico;*.exe";
-							openFileDialog.FilterIndex = 0;
-							openFileDialog.RestoreDirectory = true;
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    string iconPath = openFileDialog.FileName;
 
-							if (openFileDialog.ShowDialog() == true)
-							{
-								string iconPath = openFileDialog.FileName;
+                    OpenRootSubKey(path + "shell\\" + selectedScript, true)?.SetValue(option, iconPath);
 
-								OpenRootSubKey(path + "shell\\" + selectedScript, true)?.SetValue(option, iconPath);
-
-								element.IsChecked = true;
-							}
-
-							break;
-					}
-				}
-			}
+                    element.IsChecked = true;
+                }
+            }
 		}
 
 		private void Text_CommandChanged(object sender, EventArgs e)
 		{
-            string command = txtCommand.Text;
+			string command = txtCommand.Text;
 			
 			SetRootScriptCommand(path + "shell\\" + selectedScript, command);
 		}
@@ -347,6 +347,8 @@ namespace WinContextTweaker
 
 		private void Button_RenameScript(object sender, EventArgs e)
 		{
+			if (selectedScript == null) return;
+
 			InputDialog inputDialog = new InputDialog("Enter the script's new name:", selectedScript);
 
 			if (inputDialog.ShowDialog() == true && path != null && selectedScript != null)
