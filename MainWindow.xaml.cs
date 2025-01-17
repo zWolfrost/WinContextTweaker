@@ -211,7 +211,7 @@ namespace WinContextTweaker
 
 			if (selectedItem == null) return;
 
-            path = selectedItem.DataContext as string;
+			path = selectedItem.DataContext as string;
 
 			if (path == "SystemFileAssociations\\")
 			{
@@ -282,36 +282,36 @@ namespace WinContextTweaker
 			if (option == null) return;
 
 			string value = "";
-            if (option == "MultiSelectModel") value = "player";
+			if (option == "MultiSelectModel") value = "player";
 
-            SwitchScriptOption(path + "shell\\" + selectedScript, option, state, value);
+			SwitchScriptOption(path + "shell\\" + selectedScript, option, state, value);
 
-            if (option == "Icon" && state == true)
+			if (option == "Icon" && state == true)
 			{
-                element.IsChecked = false;
+				element.IsChecked = false;
 
-                OpenFileDialog openFileDialog = new OpenFileDialog();
+				OpenFileDialog openFileDialog = new OpenFileDialog();
 
-                openFileDialog.InitialDirectory = "%userprofile%";
-                openFileDialog.Filter = "Icon Files (*.ico, *.exe)|*.ico;*.exe";
-                openFileDialog.FilterIndex = 0;
-                openFileDialog.RestoreDirectory = true;
+				openFileDialog.InitialDirectory = "%userprofile%";
+				openFileDialog.Filter = "Icon Files (*.ico, *.exe)|*.ico;*.exe";
+				openFileDialog.FilterIndex = 0;
+				openFileDialog.RestoreDirectory = true;
 
-                if (openFileDialog.ShowDialog() == true)
-                {
-                    string iconPath = openFileDialog.FileName;
+				if (openFileDialog.ShowDialog() == true)
+				{
+					string iconPath = openFileDialog.FileName;
 
-                    OpenRootSubKey(path + "shell\\" + selectedScript, true)?.SetValue(option, iconPath);
+					OpenRootSubKey(path + "shell\\" + selectedScript, true)?.SetValue(option, iconPath);
 
-                    element.IsChecked = true;
-                }
-            }
+					element.IsChecked = true;
+				}
+			}
 		}
 
 		private void Text_CommandChanged(object sender, EventArgs e)
 		{
 			string command = txtCommand.Text;
-			
+
 			SetRootScriptCommand(path + "shell\\" + selectedScript, command);
 		}
 
