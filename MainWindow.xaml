@@ -5,7 +5,7 @@
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:local="clr-namespace:WinContextTweaker" mc:Ignorable="d"
 		Title="WinContextTweaker"  WindowStartupLocation="CenterScreen"
-		Height="500" Width="750" MinHeight="350" MinWidth="550"
+		Height="500" Width="750" MinHeight="375" MinWidth="550"
 		FontFamily="Arial" FontSize="15" Background="#f0f0f0"
 		KeyDown="MainWindow_OnKeyDown">
 
