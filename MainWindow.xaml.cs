@@ -142,7 +142,7 @@ namespace WinContextTweaker
 		{
 			RegistryKey? oldScript = OpenRootSubKey(path + oldKey);
 
-			if (oldScript != null)
+			if (oldScript != null && OpenRootSubKey(path + newKey) == null)
 			{
 				RegistryKey? newScript = CreateRootSubKey(path, newKey);
 				CreateRootSubKey(path, newKey + "\\command");
