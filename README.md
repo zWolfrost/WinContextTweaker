@@ -3,7 +3,7 @@
 [![license](https://img.shields.io/github/license/zWolfrost/WinContextTweaker)](LICENSE)
 
 Free and Open-source Right Click Context Menu Editor for Windows.
-You can download it in the releases tab.
+You can download it in the [releases tab](https://github.com/zWolfrost/WinContextTweaker/releases/latest).
 
 If you are using Windows 7 or 8.1, remember to install the ".NET Framework 6.0" and its [dependencies](https://learn.microsoft.com/en-us/dotnet/core/install/windows?tabs=net60#additional-deps).
 
